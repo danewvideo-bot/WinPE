@@ -1,0 +1,271 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    DANEW AUTOMATIC LOGGING SYSTEM                          ║
+║                         v4 - Boot & WinPE Logs                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📋 OVERVIEW
+════════════════════════════════════════════════════════════════════════════
+
+The Danew WinPE toolkit now includes a comprehensive automatic logging system:
+
+  ✓ Boot logs (startnet.cmd) - Capture system initialization
+  ✓ Session logs (PowerShell) - Capture menu and operation logs
+  ✓ Auto-sync to USB - Logs automatically copied to USB device
+  ✓ Timestamped archives - Organized by date/time for easy retrieval
+  ✓ Fallback handling - Works even if USB is unavailable
+
+No manual commands required - everything is automatic!
+
+════════════════════════════════════════════════════════════════════════════
+
+🚀 HOW IT WORKS
+════════════════════════════════════════════════════════════════════════════
+
+1. BOOT PHASE (startnet.cmd)
+   ├─ Creates X:\startnet.log in RAM (fast, non-blocking)
+   ├─ Logs WinPE initialization events
+   ├─ Logs payload discovery and copy operations
+   └─ Automatically syncs to USB at startup completion
+   
+2. SESSION PHASE (DanewMenu.ps1)
+   ├─ Imports Danew.Logging.psm1 module
+   ├─ Calls Start-DanewLogging (initialization)
+   ├─ All operations logged with timestamps
+   ├─ Logs stored in X:\DanewLogs_*.log (RAM, fast)
+   └─ Automatically synced to USB periodically + on exit
+   
+3. COMPLETION PHASE
+   └─ Final sync to USB ensures no logs are lost
+
+════════════════════════════════════════════════════════════════════════════
+
+📁 LOG LOCATIONS
+════════════════════════════════════════════════════════════════════════════
+
+During execution (in RAM, fast):
+  X:\startnet.log                 ← Boot initialization logs
+  X:\DanewLogs_*.log              ← PowerShell session logs
+  X:\DanewLogs_*_transcript.log   ← Full transcript (if enabled)
+
+After sync (on USB, persistent):
+  [USB]/Danew/logs/startnet_*.log              ← Boot logs (timestamped)
+  [USB]/Danew/logs/DanewLogs_*.log             ← Session logs
+  [USB]/Danew/logs/DanewLogs_*_transcript.log  ← Transcripts
+
+Example:
+  X:\startnet.log
+     ↓ (auto-sync)
+  D:\Danew\logs\startnet_20260119_173245.log
+
+════════════════════════════════════════════════════════════════════════════
+
+🔄 AUTOMATIC SYNCHRONIZATION
+════════════════════════════════════════════════════════════════════════════
+
+Logs are synchronized automatically at:
+
+  1. Boot completion (startnet.cmd)
+     • Creates D:\Danew\logs\ directory if needed
+     • Copies startnet.log with timestamp
+     
+  2. Menu startup (DanewMenu.ps1)
+     • Calls Start-DanewLogging automatically
+     
+  3. Each operation
+     • Critical errors sync immediately (ToUsb=$true)
+     
+  4. Menu exit (Stop-DanewLogging)
+     • Final sync ensures all logs are persistent
+
+NO USER ACTION REQUIRED - IT'S ALL AUTOMATIC!
+
+════════════════════════════════════════════════════════════════════════════
+
+💻 LOGGING API (PowerShell)
+════════════════════════════════════════════════════════════════════════════
+
+For developers integrating logging into scripts:
+
+  # Initialize logging
+  Start-DanewLogging -SessionName "MyScript" -UseTranscript $true
+  
+  # Write log entries
+  Write-DanewLog "Operation started" -Level "INFO"
+  Write-DanewLog "Warning detected" -Level "WARN"
+  Write-DanewLog "Error occurred" -Level "ERROR" -ToUsb $true
+  Write-DanewLog "Success!" -Level "OK"
+  Write-DanewLog "Debug info" -Level "DEBUG"
+  
+  # Manual sync (optional - usually automatic)
+  Sync-DanewLogs
+  
+  # Get current log path
+  $logPath = Get-DanewSessionLog
+  
+  # Finalize (important! ensures final sync)
+  Stop-DanewLogging
+
+Log Levels:
+  INFO   - ✓ Standard operations (green)
+  WARN   - ⚠ Warnings (yellow)
+  ERROR  - ✗ Errors (red)
+  OK     - ✅ Success (cyan)
+  DEBUG  - 🔧 Debug info (gray)
+
+════════════════════════════════════════════════════════════════════════════
+
+🛠️ MANUAL LOG SYNCHRONIZATION
+════════════════════════════════════════════════════════════════════════════
+
+If you need to manually sync logs (usually not necessary):
+
+  From WinPE command line:
+    X:\Danew> powershell -NoProfile -ExecutionPolicy Bypass -File Sync-DanewLogs.ps1
+  
+  Show what would be synced without copying:
+    X:\Danew> powershell ... Sync-DanewLogs.ps1 -ShowOnly
+  
+  Force re-sync even if already copied:
+    X:\Danew> powershell ... Sync-DanewLogs.ps1 -Force
+
+════════════════════════════════════════════════════════════════════════════
+
+📊 LOG FORMAT
+════════════════════════════════════════════════════════════════════════════
+
+Boot logs (startnet.cmd):
+  =====================================================
+  Startnet boot: 1/19/2026 17:35:00
+  =====================================================
+  [AUTO-SYNC] Syncing to USB: D:\Danew\logs\startnet_20260119_173500.log
+  [INFO] Log synced to USB successfully
+  =====================================================
+
+Session logs (PowerShell):
+  ════════════════════════════════════════════════════════════════════════════
+  DANEW LOGGING SESSION
+  ════════════════════════════════════════════════════════════════════════════
+  Session ID:       5234
+  Session Name:     DanewMenu
+  Start Time:       2026-01-19 17:35:10
+  Computer:         MININT-ABC123DE
+  User:             SYSTEM
+  PowerShell:       5.1.19041.4286
+  ════════════════════════════════════════════════════════════════════════════
+  
+  [2026-01-19 17:35:10] [INFO] DanewMenu v4 started
+  [2026-01-19 17:35:10] [DEBUG] PowerShell version: 5.1.19041.4286
+  [2026-01-19 17:35:10] [DEBUG] Script root: X:\Danew
+  [2026-01-19 17:35:11] [INFO] Starting: UEFI Boot Repair
+  [2026-01-19 17:35:45] [OK] Completed: UEFI Boot Repair
+  [2026-01-19 17:36:00] [INFO] Logging session ended
+
+════════════════════════════════════════════════════════════════════════════
+
+🔍 VIEWING LOGS
+════════════════════════════════════════════════════════════════════════════
+
+While in WinPE:
+
+  # View current session log
+  type X:\DanewLogs_DanewMenu_*.log
+  
+  # View boot log
+  type X:\startnet.log
+  
+  # List all logs
+  dir X:\*.log
+
+After returning to Windows:
+
+  # Mount USB and browse
+  D:\Danew\logs\           ← All archived logs
+  
+  # Or copy to Windows for analysis
+  copy-item D:\Danew\logs\* C:\Users\Admin\Downloads\WinPE-Logs\ -Recurse
+
+════════════════════════════════════════════════════════════════════════════
+
+⚠️ NOTES
+════════════════════════════════════════════════════════════════════════════
+
+RAM Temporary Storage:
+  • Logs are stored in X:\ (RAM drive) during execution
+  • This is FAST and doesn't affect system performance
+  • Automatically copied to USB afterwards
+  
+USB Fallback:
+  • If USB sync fails, logs remain in RAM
+  • Retry will be attempted on next operation or exit
+  • Manual sync can copy missed logs
+  
+Space Considerations:
+  • Typical session log: 50-500 KB
+  • Boot log: 10-50 KB
+  • Transcript (if enabled): 100-1000 KB per session
+  • USB logs directory is lightweight (< 50 MB typical)
+  
+Encoding:
+  • All logs stored in UTF-8 without BOM
+  • Batch logs (startnet) stored in ASCII
+  • Compatible with Notepad, VS Code, etc.
+
+════════════════════════════════════════════════════════════════════════════
+
+📝 FILE STRUCTURE
+════════════════════════════════════════════════════════════════════════════
+
+payload/
+├─ DanewMenu.ps1              ← Includes automatic logging startup
+├─ modules/
+│  ├─ Danew.Logging.psm1      ← NEW: Logging module
+│  ├─ Danew.SystemRepair.psm1 ← Can use Write-DanewLog
+│  └─ Danew.Backup.psm1       ← Can use Write-DanewLog
+├─ Sync-DanewLogs.ps1         ← NEW: Manual sync utility
+├─ logs/                       ← Persisted logs (after sync)
+└─ winpe/
+   └─ startnet.cmd            ← Boot logging with auto-sync
+
+════════════════════════════════════════════════════════════════════════════
+
+🔧 INTEGRATION GUIDE
+════════════════════════════════════════════════════════════════════════════
+
+To add logging to your own scripts:
+
+  1. Import the logging module:
+     Import-Module "modules\Danew.Logging.psm1" -Force
+  
+  2. Start logging at script entry:
+     Start-DanewLogging -SessionName "MyOperation" -UseTranscript $true
+  
+  3. Log your operations:
+     Write-DanewLog "Starting backup operation" -Level "INFO"
+     Write-DanewLog "Backup completed successfully" -Level "OK"
+  
+  4. Finalize at exit:
+     Stop-DanewLogging  # Ensures USB sync
+
+  5. For errors, sync immediately:
+     Write-DanewLog "Critical error occurred" -Level "ERROR" -ToUsb $true
+
+════════════════════════════════════════════════════════════════════════════
+
+📅 VERSION HISTORY
+════════════════════════════════════════════════════════════════════════════
+
+v4.0 (2026-01-19)
+  ✓ Automatic logging system implemented
+  ✓ Boot logging (startnet.cmd) with auto-sync
+  ✓ Session logging (PowerShell) with auto-sync
+  ✓ Danew.Logging.psm1 module created
+  ✓ Sync-DanewLogs.ps1 utility created
+  ✓ DanewMenu.ps1 integrated with automatic startup
+
+════════════════════════════════════════════════════════════════════════════
+
+Created: 19 janvier 2026
+Status: PRODUCTION READY ✓
+Auto-Sync: ENABLED ✓
+
+════════════════════════════════════════════════════════════════════════════

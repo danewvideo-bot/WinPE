@@ -1,0 +1,178 @@
+═════════════════════════════════════════════════════════════════════════════
+                    DANEW WINPE BOOT ERROR FIX
+═════════════════════════════════════════════════════════════════════════════
+
+ERREUR RAPPORTÉE:
+─────────────────────────────────────────────────────────────────────────────
+
+  Danew WinPE starting
+  .was unexpected at this time.
+
+Cette erreur typique Batch indique un problème d'encodage ou de syntaxe
+dans startnet.cmd qui lance le menu au démarrage du WinPE.
+
+═════════════════════════════════════════════════════════════════════════════
+
+DIAGNOSTIC:
+─────────────────────────────────────────────────────────────────────────────
+
+Le problème venait de DEUX sources:
+
+1. SYNTAXE BATCH DANGEREUSE dans startnet.cmd
+   ────────────────────────────────────────────
+   Ligne problématique:
+     set "DANEW_DRIVE="
+   
+   Problème: Alias de variable vide qui peut confondre le parser batch
+   
+   Solution: Utiliser setlocal et delayed expansion (%% vs !)
+
+2. ENCODAGE INCORRECT lors de l'écriture du fichier dans le WinPE
+   ─────────────────────────────────────────────────────────────────
+   Dans modules/Danew.WinPE.psm1, fonction Set-DanewWinPEStartnet:
+   
+   Ancien code:
+     $outLines | Set-Content -LiteralPath $dst -Encoding ASCII -Force
+   
+   Problème: Set-Content peut ajouter du BOM ou mal gérer les fins de lignes
+   
+   Solution: Utiliser [System.IO.File]::WriteAllText() avec encodage strict
+
+═════════════════════════════════════════════════════════════════════════════
+
+CORRECTIFS APPLIQUÉS:
+─────────────────────────────────────────────────────────────────────────────
+
+1. payload\winpe\startnet.cmd (VERSION TEMPLATE)
+   ──────────────────────────────────────────────
+   
+   ✓ Suppression des lignes "set DANEW_DRIVE=" dupliquées
+   ✓ Utilisation cohérente de delayed expansion (!variable!)
+   ✓ Simplification de la syntaxe REM vers un seul label
+   ✓ Tous les % remplacés par ! pour les variables dynamiques
+   
+   Exemple:
+     AVANT: if not exist "%DANEW_DRIVE%\Danew\DanewMenu.ps1"
+     APRÈS: if not exist "!DANEW_DRIVE!\Danew\DanewMenu.ps1"
+
+2. modules/Danew.WinPE.psm1 (FONCTION Set-DanewWinPEStartnet)
+   ──────────────────────────────────────────────────────────
+   
+   ✓ Lecture en UTF8 explicite (pas de supposition d'encodage)
+   ✓ Écriture avec [System.IO.File]::WriteAllText() pour contrôle total
+   ✓ Encodage ASCII strict sans BOM
+   ✓ Préservation des fins de lignes avec [System.Environment]::NewLine
+   
+   Code modifié:
+     
+     AVANT:
+       $lines = Get-Content -LiteralPath $src -ErrorAction Stop
+       $outLines | Set-Content -LiteralPath $dst -Encoding ASCII -Force
+     
+     APRÈS:
+       $lines = Get-Content -LiteralPath $src -Encoding UTF8 -ErrorAction Stop
+       $content = $outLines -join [System.Environment]::NewLine
+       [System.IO.File]::WriteAllText($dst, $content, [System.Text.Encoding]::ASCII)
+
+═════════════════════════════════════════════════════════════════════════════
+
+POURQUOI CELA FONCTIONNAIT AVANT:
+─────────────────────────────────────────────────────────────────────────────
+
+Contexte: Code écrit pour PowerShell 5.1 Windows, puis exécuté en PowerShell 7.5 Core
+Résultat: Changement subtil dans le traitement des encodages et des fins de lignes
+
+PowerShell 5.1:
+  Set-Content -Encoding ASCII → Gère correctement CRLF
+  
+PowerShell 7.5 Core:
+  Set-Content -Encoding ASCII → Peut avoir des comportements différents
+                              → Peut ajouter des BOM
+                              → Peut mal gérer les fins de lignes
+
+Solution: Utiliser une méthode bas-niveau (.NET) qui ne dépend pas
+          de la version de PowerShell
+
+═════════════════════════════════════════════════════════════════════════════
+
+FICHIERS MODIFIÉS:
+─────────────────────────────────────────────────────────────────────────────
+
+1. payload\winpe\startnet.cmd
+   Changements: Syntaxe batch corrigée, delayed expansion utilisée
+   
+2. modules\Danew.WinPE.psm1
+   Fonction: Set-DanewWinPEStartnet (ligne ~162)
+   Changements: Encodage et fin de ligne garantis
+
+═════════════════════════════════════════════════════════════════════════════
+
+À FAIRE ENSUITE:
+─────────────────────────────────────────────────────────────────────────────
+
+1. Régénérer la clé USB WinPE avec Build-All.cmd
+   
+   cd C:\temp\WinPE\DanewUsbWizard
+   .\Build-All.cmd
+
+2. Tester le boot WinPE depuis la clé USB
+   
+   ✓ Vérifier que "Danew WinPE starting" s'affiche
+   ✓ Vérifier que le menu s'affiche sans erreur ".was unexpected"
+   ✓ Vérifier que on peut naviguer dans le menu
+
+3. Si erreur persiste:
+   
+   • Vérifier le log de démarrage sur la clé:
+     DANEW_DRIVE:\Danew\startnet.log
+   
+   • Vérifier l'encodage réel du startnet.cmd créé dans le WinPE image
+   
+   • Considérer un redémarrage du système (flush des caches)
+
+═════════════════════════════════════════════════════════════════════════════
+
+NOTES TECHNIQUES:
+─────────────────────────────────────────────────────────────────────────────
+
+Encoding comparaison:
+
+  UTF-8 BOM (EF BB BF):
+    ✗ Batch: Verra les caractères BOM comme du texte → Erreur parsing
+    
+  UTF-16 (FF FE):
+    ✗ Batch: Complètement incompatible, erreur immédiate
+    
+  ASCII pur (00-7F):
+    ✓ Batch: Compatible, fiable, attendu
+    
+  Delayed Expansion (%% vs !):
+    ✗ %VAR% dans FOR loop: Évalué au parsing, pas en exécution
+    ✓ !VAR! dans FOR loop: Évalué en exécution, résultat correct
+
+C'est un bug classique des scripts batch héritées converties en PowerShell:
+  PowerShell → Batch output → Encoding assumed wrong → Parse error
+
+═════════════════════════════════════════════════════════════════════════════
+
+VÉRIFICATION APRÈS FIX:
+─────────────────────────────────────────────────────────────────────────────
+
+Vous pouvez vérifier que startnet.cmd a le bon encodage:
+
+  PowerShell:
+    [System.IO.File]::ReadAllBytes("path\startnet.cmd") | % { 
+      if ($_ -gt 127) { Write-Host "Non-ASCII: 0x$($_.ToString('X2'))" }
+    }
+  
+  Résultat attendu: Aucun message (seulement ASCII)
+
+═════════════════════════════════════════════════════════════════════════════
+
+STATUS: ✅ CORRIGÉ
+
+Créé: 19 janvier 2026
+Version: v4.1
+Origine: Boot WinPE error ".was unexpected at this time"
+
+═════════════════════════════════════════════════════════════════════════════

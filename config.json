@@ -1,0 +1,13 @@
+{
+  "logging": {
+    "forcePath": "X:\\Danew\\Logs"
+  },
+  "image": {
+    "defaultIndex": 1
+  },
+  "selfTest": {
+    "enabled": true,
+    "onBoot": true,
+    "failMode": "warn"
+  }
+}

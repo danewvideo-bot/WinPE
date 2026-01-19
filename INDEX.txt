@@ -1,0 +1,315 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    DANEW USB WIZARD - INDEX COMPLET                         ║
+║                                                                            ║
+║  Version: 0.1.12                                                           ║
+║  Date: 2026-01-19                                                          ║
+║  Status: OPERATIONNEL ✅                                                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+📍 FICHIERS A CONSULTER EN PRIORITE
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 JE VEUX COMMENCER TOUT DE SUITE
+   └─ QUICK-START.md ..................... 2 minutes pour demarrer
+   
+🔍 J'AI UN PROBLEME
+   └─ TROUBLESHOOT.md ................... Solutions aux problemes communs
+   
+📖 JE VEUX COMPRENDRE LE PROJET
+   └─ README.md ......................... Documentation complete (800+ lignes)
+   
+✅ QU'EST-CE QUI A ETE CORRIGE?
+   └─ FIXES-APPLIED.md / SOLUTION-SUMMARY.txt
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 FICHIERS D'ENTREE (A Utiliser)
+═══════════════════════════════════════════════════════════════════════════════
+
+1. DIAGNOSTIC.CMD (Recommandé pour tester les prérequis)
+   ├─ Utilisation: Double-clic > Exécuter en tant qu'admin
+   ├─ Affiche: [OK] / [XX] / [!] sur 10 catégories
+   ├─ Dure: 5-10 secondes
+   └─ Pause finale: Oui (lisez les messages)
+
+2. BUILD-ALL-DEBUG.CMD (Diagnostic + Build)
+   ├─ Utilisation: Double-clic > Exécuter en tant qu'admin
+   ├─ Affiche: Diagnostic complet puis lance build
+   ├─ Dure: 2-5 minutes
+   └─ Pause finale: Oui (affiche résultat)
+
+3. BUILD-ALL.CMD (Build Normal - MAINTENANT CORRIGE)
+   ├─ Utilisation: Double-clic > Exécuter en tant qu'admin
+   ├─ Affiche: Diagnostic + Build + Logs
+   ├─ Dure: 2-5 minutes
+   └─ Pause finale: Oui (affiche résultat + chemin logs)
+
+═══════════════════════════════════════════════════════════════════════════════
+📚 DOCUMENTATION (A Consulter)
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 README.md (800+ lignes)
+   ├─ Vue d'ensemble du projet
+   ├─ Prérequis système (OS, PowerShell, ADK)
+   ├─ Installation étape par étape
+   ├─ Guide d'utilisation complet
+   ├─ Architecture détaillée (avec diagrams)
+   ├─ Description complète de chaque module
+   ├─ Build & Versioning
+   ├─ Configuration
+   ├─ Dépannage approfondi
+   ├─ Structure fichiers
+   ├─ Dépendances externes
+   ├─ Contribution & Code style
+   └─ Références Microsoft
+
+🔧 TROUBLESHOOT.md (Dépannage)
+   ├─ Solutions 8 problèmes courants
+   ├─ Checklist diagnostic
+   ├─ Installation ADK
+   ├─ Consultation des logs
+   └─ Autres questions
+
+✅ FIXES-APPLIED.md (Historique corrections)
+   ├─ Problème initial
+   ├─ Solutions implémentées
+   ├─ Comparaison avant/après
+   ├─ Guide utilisation
+   └─ Checklist problème résolu
+
+🚀 QUICK-START.md (Démarrage Rapide)
+   ├─ 2 minutes pour commencer
+   ├─ Points d'entrée
+   ├─ Fichiers essentiels
+   ├─ Problèmes courants
+   ├─ Flux d'exécution
+   ├─ Support
+   └─ Checklist
+
+📋 SOLUTION-SUMMARY.txt (Synthèse Complète)
+   ├─ Résumé des corrections
+   ├─ Fichiers modifiés/ajoutés
+   ├─ Instructions prochaines étapes
+   ├─ Résultats attendus
+   ├─ Points clés
+   ├─ Support
+   └─ Prochaines étapes
+
+📍 INDEX (Celui-ci)
+
+═══════════════════════════════════════════════════════════════════════════════
+⚙️ FICHIERS DE CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+config.psd1
+├─ Arch = 'amd64' (Architecture)
+├─ WorkDir = 'C:\Temp\DanewWinPE' (Espace travail)
+├─ MinUsbSizeGB = 7 (Taille USB minimale)
+├─ LogRoot = 'C:\Temp\WinPE_OneClick_Logs' (Logs)
+└─ AppTitle = 'Danew USB Wizard...' (Titre UI)
+
+config.json (Payload WinPE)
+├─ logging.forcePath = 'X:\Danew\Logs'
+├─ image.defaultIndex = 1
+├─ selfTest.enabled = true
+├─ selfTest.onBoot = true
+└─ selfTest.failMode = 'warn'
+
+═══════════════════════════════════════════════════════════════════════════════
+🔧 MODULES POWERSHELL (Détails dans README.md)
+═══════════════════════════════════════════════════════════════════════════════
+
+modules\
+├─ Danew.UI.psm1 (570 lignes)
+│  └─ Interface WPF, sélection disque, barre progression
+│
+├─ Danew.WinPE.psm1 (796 lignes)
+│  └─ Création USB WinPE, partitionnement, copie données
+│
+├─ Danew.EFI.psm1 (457 lignes)
+│  └─ Gestion EFI, BitLocker, réparation système
+│
+├─ Danew.Disk.psm1 (70 lignes)
+│  └─ Détection USB, filtrage disques
+│
+├─ Danew.Common.psm1 (186 lignes)
+│  └─ Utilitaires partagés (logs, admin, etc.)
+│
+├─ Danew.Backup.psm1
+│  └─ Gestion sauvegarde système
+│
+├─ Danew.Diagnostic.psm1
+│  └─ Diagnostics système
+│
+├─ Danew.SystemRepair.psm1
+│  └─ Outils réparation système
+│
+└─ Danew.Payload.psm1
+   └─ Gestion payload WinPE
+
+═══════════════════════════════════════════════════════════════════════════════
+📦 PAYLOAD WINPE (Runtime sur USB)
+═══════════════════════════════════════════════════════════════════════════════
+
+payload\
+├─ DanewMenu.ps1 .............. Menu principal WinPE
+├─ SelfTest.ps1 ............... Tests système auto
+├─ RunFix.cmd ................. Script réparation
+├─ config.json ................ Configuration
+├─ VERSION .................... Version payload
+├─ modules/ ................... Modules WinPE
+└─ winpe/
+   └─ startnet.cmd ............ Script boot WinPE
+
+═══════════════════════════════════════════════════════════════════════════════
+🏗️ BUILD SYSTEM
+═══════════════════════════════════════════════════════════════════════════════
+
+Build-All.ps1 ................. Script build principal (168 lignes)
+├─ Bump versioning (patch/minor/major)
+├─ Build EXE
+├─ Build WinPE
+├─ Build portable
+├─ Sync USB
+└─ Logs complets
+
+Build-All.cmd ................. Wrapper Build-All.ps1 (CORRIGE)
+├─ Admin check
+├─ PowerShell detection
+├─ Pause + affichage erreurs
+└─ Log path
+
+Build-Portable.ps1 ............ Build portable
+Build-Portable.cmd ............ Wrapper portable
+
+Get-Version.ps1 ............... Gestion versioning
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 ENTRY POINTS (Points d'Entrée)
+═══════════════════════════════════════════════════════════════════════════════
+
+launcher.ps1 (115 lignes)
+├─ Point d'entrée principal
+├─ Vérification admin
+├─ Élévation privilèges
+└─ Lancement UI
+
+Start-DanewUsbWizard.ps1 (235 lignes)
+├─ Orchestration PS5.1
+├─ Chargement modules
+└─ Lancement UI WPF
+
+New-DanewUsbWizard.ps1 (219 lignes)
+├─ Variante PS7.0+
+├─ Mode CLI possible
+└─ Cross-platform compatible
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 VERSIONS / FICHIERS VERSION
+═══════════════════════════════════════════════════════════════════════════════
+
+VERSION (Racine) .............. Version actuelle: 0.1.12
+version.txt ................... Alias VERSION
+payload/VERSION ............... Version payload
+
+Versioning:
+├─ Format: MAJOR.MINOR.PATCH
+├─ Bump automatique: patch/minor/major
+└─ Build avec stamp possible (ajout timestamp)
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 STRUCTURE COMPLETE (Voir README.md pour détails)
+═══════════════════════════════════════════════════════════════════════════════
+
+DanewUsbWizard/
+├─ [DOCUMENTATION] .md / .txt files
+│  ├─ README.md ..................... 800+ lignes
+│  ├─ TROUBLESHOOT.md
+│  ├─ FIXES-APPLIED.md
+│  ├─ QUICK-START.md
+│  ├─ SOLUTION-SUMMARY.txt
+│  └─ INDEX (ce fichier)
+│
+├─ [ENTREE] Build & Launch
+│  ├─ Diagnostic.cmd ............... Test prérequis
+│  ├─ Build-All.cmd / .ps1 ......... Build principal
+│  ├─ Build-All-Debug.cmd ......... Diagnostic + Build
+│  ├─ Build-Portable.cmd / .ps1 ... Build portable
+│  ├─ launcher.ps1 / Start-DanewUsbWizard.ps1
+│  └─ New-DanewUsbWizard.ps1
+│
+├─ [CONFIG] Configuration
+│  ├─ config.psd1 ................. PowerShell config
+│  ├─ config.json ................. WinPE config
+│  └─ assets/branding.psd1 ........ Branding UI
+│
+├─ [MODULES] Code PowerShell
+│  └─ modules/
+│     ├─ Danew.UI.psm1 ............ Interface WPF
+│     ├─ Danew.WinPE.psm1 ........ Création USB
+│     ├─ Danew.EFI.psm1 .......... Gestion EFI
+│     ├─ Danew.Disk.psm1 ......... Détection USB
+│     ├─ Danew.Common.psm1 ....... Utilitaires
+│     └─ Danew.*.psm1 ............ Autres modules
+│
+├─ [PAYLOAD] Runtime WinPE
+│  └─ payload/
+│     ├─ DanewMenu.ps1 ........... Menu WinPE
+│     ├─ SelfTest.ps1 ............ Tests auto
+│     ├─ RunFix.cmd .............. Réparation
+│     ├─ config.json ............. Config
+│     ├─ VERSION ................. Version
+│     ├─ modules/ ................ Modules WinPE
+│     └─ winpe/startnet.cmd ...... Boot script
+│
+├─ [TOOLS] Outils & Ressources
+│  ├─ pwsh/ ....................... PowerShell Core
+│  ├─ tools/ps2exe/ ............... Convertisseur PS→EXE
+│  └─ sources/ .................... Fichiers sources
+│
+├─ [RUNTIME] Généré au runtime
+│  ├─ logs/ ....................... Build logs
+│  ├─ dist/ ....................... Artifacts build
+│  └─ USB/ ........................ Point montage USB
+│
+└─ [VERSION] Versioning
+   ├─ VERSION .................... 0.1.12
+   └─ version.txt ................ 0.1.12
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ STATUS DES CORRECTIONS (2026-01-19)
+═══════════════════════════════════════════════════════════════════════════════
+
+[✅] Build-All.cmd - CORRIGE (pause + affichage erreurs)
+[✅] Build-All-Debug.cmd - NOUVEAU (diagnostic complet)
+[✅] Build-All-Diagnostic.ps1 - NOUVEAU + CORRIGE (encoding)
+[✅] Diagnostic.cmd - NOUVEAU (accès facile)
+[✅] README.md - NOUVEAU (800+ lignes documentation)
+[✅] TROUBLESHOOT.md - NOUVEAU (guide dépannage)
+[✅] QUICK-START.md - NOUVEAU (démarrage rapide)
+[✅] FIXES-APPLIED.md - NOUVEAU (historique)
+[✅] SOLUTION-SUMMARY.txt - NOUVEAU (synthèse)
+[✅] INDEX - NOUVEAU (ce fichier)
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 COMMENCER MAINTENANT
+═══════════════════════════════════════════════════════════════════════════════
+
+ETAPE 1: Diagnostic (5-10 secondes)
+  └─ Double-clic: Diagnostic.cmd
+
+ETAPE 2: Si OK, Build (2-5 minutes)
+  └─ Double-clic: Build-All.cmd
+
+ETAPE 3: Clé USB Prête!
+  └─ Utiliser pour sauvegarde/réparation
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Bon build! 🚀
+
+Date: 2026-01-19
+Version: 0.1.12
+Status: OPERATIONNEL ✅
+
+═══════════════════════════════════════════════════════════════════════════════
